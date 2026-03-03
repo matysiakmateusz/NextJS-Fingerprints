@@ -542,16 +542,6 @@ const AdminPage = () => {
           {/* Tests */}
           {activeTab === "tests" && (
             <div className="space-y-6">
-              {process.env.NEXT_PUBLIC_VERCEL && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-800 dark:text-blue-200">
-                  <strong>GitHub Actions:</strong> Testy są uruchamiane przez GitHub Actions workflow. Wymagana konfiguracja w Vercel:
-                  <ul className="mt-1 ml-4 list-disc text-xs space-y-0.5">
-                    <li><code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">GITHUB_TOKEN</code> — Personal Access Token z uprawnieniem <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">actions:write</code></li>
-                    <li><code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">GITHUB_REPOSITORY</code> — opcjonalnie, jeśli Vercel nie ustawia <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">VERCEL_GIT_REPO_OWNER/SLUG</code></li>
-                    <li>GitHub repo secret: <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">E2E_SECRET</code> (dla testów E2E)</li>
-                  </ul>
-                </div>
-              )}
               {([
                 { type: "e2e" as const, label: "Playwright E2E", description: "Pełny flow rejestracji, admin dashboard i blacklisty" },
                 { type: "bot-test" as const, label: "Bot Test", description: "Raw HTTP, Puppeteer headless i stealth — 3 warianty ataków" },
