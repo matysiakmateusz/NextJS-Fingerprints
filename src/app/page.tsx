@@ -16,13 +16,13 @@ const menuItems = [
   {
     href: "/form",
     title: "Formularz",
-    description: "Formularz z Fingerprint Proxy do ochrony transakcji.",
+    description: "Formularz z Fingerprint Proxy do ochrony rejestracji.",
     icon: "📝",
   },
   {
     href: "/admin",
     title: "Admin Dashboard",
-    description: "Panel administracyjny do zarządzania odciskami palców.",
+    description: "Panel administracyjny do zarządzania aplikacją.",
     icon: "🔒",
   },
 ];
