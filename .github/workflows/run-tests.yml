@@ -1,0 +1,51 @@
+name: Run Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: "Test type to run"
+        required: true
+        type: choice
+        options:
+          - e2e
+          - bot-test
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        if: inputs.test_type == 'e2e'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Chrome for Puppeteer
+        if: inputs.test_type == 'bot-test'
+        run: npx puppeteer browsers install chrome
+
+      - name: Run E2E tests
+        if: inputs.test_type == 'e2e'
+        run: pnpm e2e
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ vars.DEPLOYMENT_URL || 'https://next-js-fingerprints.vercel.app' }}
+          E2E_SECRET: ${{ secrets.E2E_SECRET }}
+
+      - name: Run Bot tests
+        if: inputs.test_type == 'bot-test'
+        run: pnpm bot-test
+        env:
+          BASE_URL: ${{ vars.DEPLOYMENT_URL || 'https://next-js-fingerprints.vercel.app' }}

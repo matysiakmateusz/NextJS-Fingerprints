@@ -10,7 +10,7 @@
  *   node bot-test.mjs
  */
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const FORM_URL = `${BASE_URL}/form`;
 const FORM_ENDPOINT = `${BASE_URL}/api/fetch-proxy`;
 
