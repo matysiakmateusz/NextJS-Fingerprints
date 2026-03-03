@@ -224,6 +224,7 @@ const AdminPage = () => {
                   [type]: pollJson.conclusion === "success" ? 0 : 1,
                 }));
                 setTestRunning((prev) => ({ ...prev, [type]: false }));
+                fetchData();
                 return;
               }
 
@@ -277,6 +278,7 @@ const AdminPage = () => {
         }
       }
       setTestRunning((prev) => ({ ...prev, [type]: false }));
+      fetchData();
     } catch {
       setTestOutput((prev) => ({ ...prev, [type]: (prev[type] ?? "") + "\n[Błąd połączenia]\n" }));
       setTestRunning((prev) => ({ ...prev, [type]: false }));
