@@ -16,6 +16,7 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro-react": "^2.7.1",
     "@fingerprintjs/fingerprintjs-pro-server-api": "^6.10.0",
+    "@microlink/react-json-view": "^1.27.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

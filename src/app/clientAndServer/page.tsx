@@ -1,6 +1,7 @@
 "use client";
 
 import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
+import JsonView from "@microlink/react-json-view";
 import { useState } from "react";
 
 const ClientAndServerPage = () => {
@@ -45,13 +46,15 @@ const ClientAndServerPage = () => {
 
       <h2 className="text-xl font-bold mb-2">Full visitor client data:</h2>
 
-      <pre className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
+      <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
         {isLoading
           ? "Loading..."
           : error
             ? error.message
-            : JSON.stringify(data, null, 2)}
-      </pre>
+            : data
+              ? <JsonView src={data} collapsed={1} />
+              : null}
+      </div>
 
       <h2 className="text-2xl font-bold mb-4">Serwer – Weryfikacja przez Server API</h2>
 
@@ -81,9 +84,13 @@ const ClientAndServerPage = () => {
               <span className="ml-2 text-sm font-normal text-gray-500">– {serverDataLabel}</span>
             ) : null}:
           </h3>
-          <pre className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
-            {serverLoading ? "Loading..." : JSON.stringify(serverData, null, 2)}
-          </pre>
+          <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+            {serverLoading
+              ? "Loading..."
+              : serverData && typeof serverData === "object"
+                ? <JsonView src={serverData as object} collapsed={1} />
+                : String(serverData)}
+          </div>
         </>
       ) : null}
     </div>
