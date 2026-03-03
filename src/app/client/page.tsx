@@ -2,7 +2,7 @@
 
 import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
 
-const Example1Page = () => {
+const ClientPage = () => {
   const { isLoading, error, data, getData } = useVisitorData(
     { extendedResult: true, ignoreCache: true },
     { immediate: true },
@@ -43,4 +43,4 @@ const Example1Page = () => {
   );
 };
 
-export default Example1Page;
+export default ClientPage;
