@@ -466,6 +466,12 @@ const AdminPage = () => {
           {/* Tests */}
           {activeTab === "tests" && (
             <div className="space-y-6">
+              {process.env.NEXT_PUBLIC_VERCEL && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Uwaga:</strong> Testy E2E i bot-test wymagają dostępu do CLI, Playwright i Chromium, które nie są dostępne w środowisku serverless Vercel. Uruchom testy lokalnie:
+                  <code className="block mt-2 p-2 bg-yellow-100 dark:bg-yellow-900 rounded text-xs font-mono">pnpm e2e &nbsp;&nbsp;&nbsp; # Playwright E2E{"\n"}pnpm bot-test &nbsp;# Bot Test</code>
+                </div>
+              )}
               {([
                 { type: "e2e" as const, label: "Playwright E2E", description: "Pełny flow rejestracji, admin dashboard i blacklisty" },
                 { type: "bot-test" as const, label: "Bot Test", description: "Raw HTTP, Puppeteer headless i stealth — 3 warianty ataków" },

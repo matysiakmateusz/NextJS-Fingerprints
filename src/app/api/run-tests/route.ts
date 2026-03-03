@@ -12,6 +12,17 @@ type TestType = keyof typeof ALLOWED_TESTS;
 const running = new Map<string, ChildProcess>();
 
 export async function POST(request: Request) {
+  // Vercel serverless functions cannot spawn child processes (no CLI tools, no browsers)
+  if (process.env.VERCEL) {
+    return NextResponse.json(
+      {
+        error:
+          "Testy nie mogą być uruchamiane na Vercel. Środowisko serverless nie posiada dostępu do CLI, Playwright ani Chromium. Uruchom testy lokalnie: pnpm e2e / pnpm bot-test",
+      },
+      { status: 501 },
+    );
+  }
+
   const body = await request.json();
   const type = body.type as TestType;
 
@@ -68,8 +79,12 @@ export async function POST(request: Request) {
       proc.on("error", (err) => {
         running.delete(type);
         try {
+          // Send error as regular data so the frontend can display it
           controller.enqueue(
-            encoder.encode(`event: error\ndata: ${JSON.stringify({ message: err.message })}\n\n`),
+            encoder.encode(`data: ${JSON.stringify(`\n[BŁĄD] Nie udało się uruchomić procesu: ${err.message}\n`)}\n\n`),
+          );
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ code: 1 })}\n\n`),
           );
           controller.close();
         } catch {
