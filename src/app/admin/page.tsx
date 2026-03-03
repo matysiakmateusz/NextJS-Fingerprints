@@ -50,6 +50,16 @@ const AdminPage = () => {
   const [testOutput, setTestOutput] = useState<Record<string, string>>({});
   const [testExitCode, setTestExitCode] = useState<Record<string, number | null>>({});
   const outputEndRef = useRef<HTMLDivElement>(null);
+  const pollTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  // Cleanup poll timers on unmount
+  useEffect(() => {
+    return () => {
+      for (const timer of Object.values(pollTimers.current)) {
+        clearTimeout(timer);
+      }
+    };
+  }, []);
 
   /** Colorize terminal output for the live preview */
   const colorizeOutput = (text: string) => {
@@ -158,6 +168,12 @@ const AdminPage = () => {
   const runTest = async (type: "e2e" | "bot-test") => {
     if (testRunning[type]) return;
 
+    // Clear any previous poll timer for this type
+    if (pollTimers.current[type]) {
+      clearTimeout(pollTimers.current[type]);
+      delete pollTimers.current[type];
+    }
+
     setTestRunning((prev) => ({ ...prev, [type]: true }));
     setTestOutput((prev) => ({ ...prev, [type]: "" }));
     setTestExitCode((prev) => ({ ...prev, [type]: null }));
@@ -169,9 +185,69 @@ const AdminPage = () => {
         body: JSON.stringify({ type }),
       });
 
-      if (!res.ok || !res.body) {
-        const json = await res.json().catch(() => ({ error: "Błąd połączenia" }));
-        setTestOutput((prev) => ({ ...prev, [type]: json.error ?? "Błąd" }));
+      const contentType = res.headers.get("content-type") || "";
+
+      // ─── Vercel: JSON response → GitHub Actions polling ───
+      if (contentType.includes("application/json")) {
+        const json = await res.json();
+
+        if (!res.ok || json.error) {
+          setTestOutput((prev) => ({ ...prev, [type]: json.error ?? "Błąd" }));
+          setTestRunning((prev) => ({ ...prev, [type]: false }));
+          return;
+        }
+
+        if (json.runId) {
+          const ghUrl = json.htmlUrl ? `\n   ${json.htmlUrl}` : "";
+          setTestOutput((prev) => ({
+            ...prev,
+            [type]: `⏳ Workflow GitHub Actions uruchomiony (Run #${json.runId})${ghUrl}\n   Oczekiwanie na wyniki...\n`,
+          }));
+
+          const statusLabels: Record<string, string> = {
+            queued: "W kolejce",
+            in_progress: "W trakcie wykonywania...",
+            waiting: "Oczekiwanie...",
+          };
+
+          const poll = async () => {
+            try {
+              const pollRes = await fetch(`/api/run-tests?runId=${json.runId}`);
+              const pollJson = await pollRes.json();
+
+              if (pollJson.status === "completed") {
+                delete pollTimers.current[type];
+                const logs = pollJson.logs || "(brak logów)";
+                setTestOutput((prev) => ({ ...prev, [type]: logs }));
+                setTestExitCode((prev) => ({
+                  ...prev,
+                  [type]: pollJson.conclusion === "success" ? 0 : 1,
+                }));
+                setTestRunning((prev) => ({ ...prev, [type]: false }));
+                return;
+              }
+
+              setTestOutput((prev) => ({
+                ...prev,
+                [type]: `⏳ Workflow GitHub Actions (Run #${json.runId})${ghUrl}\n   Status: ${statusLabels[pollJson.status] || pollJson.status}\n`,
+              }));
+              pollTimers.current[type] = setTimeout(poll, 5000);
+            } catch {
+              pollTimers.current[type] = setTimeout(poll, 5000);
+            }
+          };
+
+          pollTimers.current[type] = setTimeout(poll, 5000);
+          return;
+        }
+
+        setTestRunning((prev) => ({ ...prev, [type]: false }));
+        return;
+      }
+
+      // ─── Local: SSE stream ───
+      if (!res.body) {
+        setTestOutput((prev) => ({ ...prev, [type]: "Błąd: brak response body" }));
         setTestRunning((prev) => ({ ...prev, [type]: false }));
         return;
       }
@@ -200,9 +276,9 @@ const AdminPage = () => {
           }
         }
       }
+      setTestRunning((prev) => ({ ...prev, [type]: false }));
     } catch {
       setTestOutput((prev) => ({ ...prev, [type]: (prev[type] ?? "") + "\n[Błąd połączenia]\n" }));
-    } finally {
       setTestRunning((prev) => ({ ...prev, [type]: false }));
     }
   };
@@ -467,9 +543,13 @@ const AdminPage = () => {
           {activeTab === "tests" && (
             <div className="space-y-6">
               {process.env.NEXT_PUBLIC_VERCEL && (
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>Uwaga:</strong> Testy E2E i bot-test wymagają dostępu do CLI, Playwright i Chromium, które nie są dostępne w środowisku serverless Vercel. Uruchom testy lokalnie:
-                  <code className="block mt-2 p-2 bg-yellow-100 dark:bg-yellow-900 rounded text-xs font-mono">pnpm e2e &nbsp;&nbsp;&nbsp; # Playwright E2E{"\n"}pnpm bot-test &nbsp;# Bot Test</code>
+                <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+                  <strong>GitHub Actions:</strong> Testy są uruchamiane przez GitHub Actions workflow. Wymagana konfiguracja w Vercel:
+                  <ul className="mt-1 ml-4 list-disc text-xs space-y-0.5">
+                    <li><code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">GITHUB_TOKEN</code> — Personal Access Token z uprawnieniem <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">actions:write</code></li>
+                    <li><code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">GITHUB_REPOSITORY</code> — opcjonalnie, jeśli Vercel nie ustawia <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">VERCEL_GIT_REPO_OWNER/SLUG</code></li>
+                    <li>GitHub repo secret: <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">E2E_SECRET</code> (dla testów E2E)</li>
+                  </ul>
                 </div>
               )}
               {([
