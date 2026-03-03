@@ -38,7 +38,7 @@ const Example2Page = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Fingerprint Demo</h1>
+      <h1 className="text-2xl font-bold mb-4">Serwer – Weryfikacja przez Server API</h1>
 
       <pre className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
         {isLoading

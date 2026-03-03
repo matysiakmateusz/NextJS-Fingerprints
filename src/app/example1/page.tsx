@@ -15,7 +15,7 @@ const Example1Page = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Fingerprint Demo</h1>
+      <h1 className="text-2xl font-bold mb-4">Klient – Identyfikacja w przeglądarce</h1>
 
       <div>
         <div>
