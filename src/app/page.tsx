@@ -2,15 +2,15 @@ import Link from "next/link";
 
 const menuItems = [
   {
-    href: "/example1",
-    title: "Basic React Integration",
-    description: "Podstawowa integracja Fingerprint z React po stronie klienta.",
+    href: "/client",
+    title: "Client API",
+    description: 'Weryfikacja "odcisków palców" po stronie klienta.',
     icon: "⚛️",
   },
   {
-    href: "/example2",
-    title: "Server API",
-    description: "Weryfikacja odcisków palców po stronie serwera.",
+    href: "/clientAndServer",
+    title: "Client API + Server API",
+    description: 'Weryfikacja "odcisków palców" po stronie klienta i serwera.',
     icon: "🖥️",
   },
   {
