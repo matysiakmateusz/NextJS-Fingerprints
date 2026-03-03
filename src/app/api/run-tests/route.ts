@@ -84,7 +84,9 @@ export async function POST(request: Request) {
 		if (!dispatchRes.ok) {
 			const text = await dispatchRes.text();
 			return NextResponse.json(
-				{ error: `Błąd GitHub API (${dispatchRes.status}): ${text}` },
+				{
+					error: `Błąd GitHub API (${dispatchRes.status}): ${text}\n\nWykryte repo: ${repo}\nRef: ${ref}\nUpewnij się że:\n1. Plik .github/workflows/run-tests.yml jest spushowany na branch "${ref}"\n2. GITHUB_TOKEN ma uprawnienie actions:write\n3. GITHUB_REPOSITORY (${repo}) jest poprawne`,
+				},
 				{ status: 502 },
 			);
 		}
