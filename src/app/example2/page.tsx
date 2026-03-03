@@ -38,7 +38,7 @@ const Example2Page = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Serwer – Weryfikacja przez Server API</h1>
+      <h1 className="text-2xl font-bold mb-4">Klient – Identyfikacja w przeglądarce</h1>
 
       <pre className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
         {isLoading
@@ -47,6 +47,8 @@ const Example2Page = () => {
             ? error.message
             : JSON.stringify(data, null, 2)}
       </pre>
+
+      <h2 className="text-2xl font-bold mb-4">Serwer – Weryfikacja przez Server API</h2>
 
       <div className="mb-2 space-x-2">
         <button
