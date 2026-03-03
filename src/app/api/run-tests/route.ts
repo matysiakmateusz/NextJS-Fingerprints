@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const ALLOWED_TESTS = {
 	e2e: { label: "Playwright E2E" },
-	"bot-test": { label: "Bot Test" },
+	"bot-test": { label: "Bot Test Attack" },
 } as const;
 
 type TestType = keyof typeof ALLOWED_TESTS;

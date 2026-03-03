@@ -543,8 +543,8 @@ const AdminPage = () => {
           {activeTab === "tests" && (
             <div className="space-y-6">
               {([
-                { type: "e2e" as const, label: "Playwright E2E", description: "Pełny flow rejestracji, admin dashboard i blacklisty" },
-                { type: "bot-test" as const, label: "Bot Test", description: "Raw HTTP, Puppeteer headless i stealth — 3 warianty ataków" },
+                { type: "e2e" as const, label: "Playwright E2E", description: "Rejestracja za pomocą naszych testów E2E" },
+                { type: "bot-test" as const, label: "Bot Test Attack", description: "Raw HTTP, Puppeteer headless i stealth — 3 warianty ataków" },
               ]).map((t) => (
                 <div key={t.type} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800">
