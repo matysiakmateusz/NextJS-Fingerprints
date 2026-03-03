@@ -2,12 +2,6 @@ import Link from "next/link";
 
 const menuItems = [
   {
-    href: "/client",
-    title: "Client API",
-    description: 'Weryfikacja "odcisków palców" po stronie klienta.',
-    icon: "⚛️",
-  },
-  {
     href: "/clientAndServer",
     title: "Client API + Server API",
     description: 'Weryfikacja "odcisków palców" po stronie klienta i serwera.',
@@ -39,12 +33,12 @@ const HomePage = () => {
         </p>
       </header>
 
-      <nav className="grid gap-4 sm:grid-cols-2">
-        {menuItems.map((item) => (
+      <nav className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {menuItems.map((item, index) => (
           <Link
             key={item.href}
             href={item.href}
-            className="group rounded-xl border border-zinc-200 p-6 transition-all hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 dark:border-zinc-800 dark:hover:border-blue-500/40"
+            className={`group rounded-xl border border-zinc-200 p-6 transition-all hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 dark:border-zinc-800 dark:hover:border-blue-500/40${index === menuItems.length - 1 && menuItems.length % 2 !== 0 ? " sm:col-span-2 lg:col-span-1" : ""}`}
           >
             <span className="mb-3 block text-3xl">{item.icon}</span>
             <h2 className="mb-1 text-lg font-semibold group-hover:text-blue-500 transition-colors">

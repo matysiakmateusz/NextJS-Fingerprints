@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const labels: Record<string, string> = {
-  client: "Klient",
   clientAndServer: "Klient i Serwer",
   form: "Formularz",
   admin: "Admin",

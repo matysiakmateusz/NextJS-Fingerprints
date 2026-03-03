@@ -18,6 +18,8 @@ const FAKE_DATA = {
   email: "bot@test.com",
   name: "Bot User",
   password: "BotPass123!",
+  requestId: "test-request-id-12345", // Kluczowy element — brak tego powinien skutkować blokadą
+  visitorId: "test-visitor-id-67890", // Opcjonalny, ale może pomóc w diagnostyce
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -57,8 +59,8 @@ async function analyzeResponse(variant, response) {
 
 // ─── Wariant 1: Raw HTTP (bez przeglądarki) ─────────────────────────
 
-async function testRawHttp() {
-  console.log("\n━━━ WARIANT 1: Raw HTTP (brak JS, brak fingerprint) ━━━");
+async function testRawHttpWithFakeData() {
+  console.log("\n━━━ WARIANT 1: Raw HTTP z fake requestId i visitorId ━━━");
 
   try {
     const res = await fetch(FORM_ENDPOINT, {
@@ -72,10 +74,29 @@ async function testRawHttp() {
   }
 }
 
-// ─── Wariant 2: Puppeteer headless (standard) ──────────────────────
+// ─── Wariant 2: Raw HTTP (bez requestId i visitorId) ──────────────
+
+async function testRawHttpWithoutFingerprint() {
+  console.log("\n━━━ WARIANT 2: Raw HTTP bez requestId i visitorId ━━━");
+
+  const { requestId, visitorId, ...dataWithoutFingerprint } = FAKE_DATA;
+
+  try {
+    const res = await fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataWithoutFingerprint),
+    });
+    await analyzeResponse("Raw HTTP (no fingerprint)", res);
+  } catch (err) {
+    log("Raw HTTP (no fingerprint)", "ERROR", err.message);
+  }
+}
+
+// ─── Wariant 3: Puppeteer headless (standard) ──────────────────────
 
 async function testHeadless() {
-  console.log("\n━━━ WARIANT 2: Puppeteer Headless (standard) ━━━");
+  console.log("\n━━━ WARIANT 3: Puppeteer Headless (standard) ━━━");
 
   const puppeteer = await import("puppeteer");
   const browser = await puppeteer.default.launch({
@@ -131,10 +152,10 @@ async function testHeadless() {
   }
 }
 
-// ─── Wariant 3: Puppeteer + Stealth Plugin ──────────────────────────
+// ─── Wariant 4: Puppeteer + Stealth Plugin ──────────────────────────
 
 async function testStealth() {
-  console.log("\n━━━ WARIANT 3: Puppeteer Headless + Stealth ━━━");
+  console.log("\n━━━ WARIANT 4: Puppeteer Headless + Stealth ━━━");
 
   const puppeteerExtra = await import("puppeteer-extra");
   const StealthPlugin = await import("puppeteer-extra-plugin-stealth");
@@ -240,14 +261,16 @@ async function main() {
   console.log("║   Target: " + BASE_URL.padEnd(35) + "║");
   console.log("╚══════════════════════════════════════════════╝");
 
-  await testRawHttp();
+  await testRawHttpWithFakeData();
+  await testRawHttpWithoutFingerprint();
   await testHeadless();
   await testStealth();
 
   console.log("\n━━━ PODSUMOWANIE ━━━");
-  console.log("Wariant 1 (Raw HTTP)  → powinien być ZAWSZE blokowany (brak requestId)");
-  console.log("Wariant 2 (Headless)  → powinien być blokowany (navigator.webdriver = true)");
-  console.log("Wariant 3 (Stealth)   → jeśli przeszedł, Fingerprint nie wykrywa stealth bota");
+  console.log("Wariant 1 (Raw HTTP z fake ID)    → powinien być blokowany (fake requestId)");
+  console.log("Wariant 2 (Raw HTTP bez ID)       → powinien być ZAWSZE blokowany (brak requestId)");
+  console.log("Wariant 3 (Headless)              → powinien być blokowany (navigator.webdriver = true)");
+  console.log("Wariant 4 (Stealth)               → jeśli przeszedł, Fingerprint nie wykrywa stealth bota");
 }
 
 main().catch(console.error);
