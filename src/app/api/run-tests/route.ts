@@ -12,17 +12,6 @@ type TestType = keyof typeof ALLOWED_TESTS;
 const running = new Map<string, ChildProcess>();
 
 export async function POST(request: Request) {
-  // Vercel serverless functions cannot spawn child processes (no CLI tools, no browsers)
-  if (process.env.VERCEL) {
-    return NextResponse.json(
-      {
-        error:
-          "Testy nie mogą być uruchamiane na Vercel. Środowisko serverless nie posiada dostępu do CLI, Playwright ani Chromium. Uruchom testy lokalnie: pnpm e2e / pnpm bot-test",
-      },
-      { status: 501 },
-    );
-  }
-
   const body = await request.json();
   const type = body.type as TestType;
 
