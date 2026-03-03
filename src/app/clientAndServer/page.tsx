@@ -1,8 +1,13 @@
 "use client";
 
 import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
-import JsonView from "@microlink/react-json-view";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+
+const JsonView = dynamic(() => import("@microlink/react-json-view"), {
+  ssr: false,
+  loading: () => <span className="text-gray-800">Loading...</span>,
+});
 
 const ClientAndServerPage = () => {
   const { isLoading, error, data } = useVisitorData(
@@ -46,7 +51,7 @@ const ClientAndServerPage = () => {
 
       <h2 className="text-xl font-bold mb-2">Full visitor client data:</h2>
 
-      <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+      <div className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
         {isLoading
           ? "Loading..."
           : error
@@ -84,7 +89,7 @@ const ClientAndServerPage = () => {
               <span className="ml-2 text-sm font-normal text-gray-500">– {serverDataLabel}</span>
             ) : null}:
           </h3>
-          <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+          <div className="mb-4 p-4 bg-gray-100 rounded text-sm text-gray-800">
             {serverLoading
               ? "Loading..."
               : serverData && typeof serverData === "object"
